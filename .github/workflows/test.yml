@@ -1,5 +1,5 @@
 name: 'build-test'
-on: # rebuild any PRs and main branch changes
+on:
   pull_request:
   push:
     branches:
@@ -7,7 +7,7 @@ on: # rebuild any PRs and main branch changes
       - 'releases/*'
 
 jobs:
-  build: # make sure build/ci work properly
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,10 +15,21 @@ jobs:
           npm install
       - run: |
           npm run all
-  test: # make sure the action works on a clean machine without building
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        id: upsert
         with:
-          milliseconds: 1000
+          source_json: '[ { "id": 1, "title": "Test 1" }, { "id": 2, "title": "Title 2" }, { "id": 3, "title": "Title 3" } ]'
+          input_json: '{ "id": 2, "title": "Test Updated!" }'
+          filter_property: id
+      - name: create-json
+        id: create-json
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "test.json"
+          json: ${{ steps.upsert.outputs.json }}
+      - if: ${{ steps.upsert.outputs.json != '[{"id":1,"title":"Test 1"},{"id":2,"title":"Test Updated!"},{"id":3,"title":"Title 3"}]' }}
+        run: exit 1
