@@ -1,11 +1,21 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Upsert JSON Object or Array'
+description: 'An action that lets you add JSON fields to an existing JSON object, or update fields if they already exist.'
+author: 'Nevulo'
 inputs:
-  milliseconds: # change this
+  source_json: # change this
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'The source JSON object or array'
+  input_json:
+    required: true
+    description: 'A JSON object - if source_json is an array of objects, this object will be added to it. If filter_property is set to a common property shared among all of the objects in the array, and the input_json object contains a key matching filter_property and the value of that key matches another object in the array under the same key, it will upsert the object in the source_json array.'
+  filter_property:
+    required: false
+    description: 'When source_json is an array of objects, the name of a key shared among all of the objects in the array'
+
+outputs:
+  json:
+    description: 'The final JSON object after properties are added/updated'
+
 runs:
   using: 'node16'
   main: 'dist/index.js'
